@@ -29,6 +29,7 @@ javascript:(async function () {
 		511: 'Clickable element not found.',
 		520: 'Cannot find the "All students" option in the assignees menu.',
 		530: 'Cannot parse the "All students" option in the assignees menu.',
+		540: 'You must run this bookmarklet on https://classroom.google.com/.',
 	};
 
 	class CustomError {
@@ -90,6 +91,9 @@ javascript:(async function () {
 	/*** Main logic ***/
 
 	try {
+		const { host, protocol } = window.location;
+		if (protocol !== 'https:' || host !== 'classroom.google.com') throw new CustomError(540);
+
 		// Parse the user's input
 
 		const names = getNames();
