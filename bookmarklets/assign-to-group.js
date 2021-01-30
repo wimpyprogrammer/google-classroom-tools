@@ -72,11 +72,6 @@ javascript:(async function () {
 		return /true/i.test($cursor.ariaChecked);
 	}
 
-	async function setCheckedState($option, shouldBeChecked) {
-		if (isChecked($option) === shouldBeChecked) return;
-		await click($option);
-	}
-
 	async function wait(milliseconds) {
 		return new Promise((resolve) => setTimeout(resolve, milliseconds));
 	}
@@ -130,16 +125,16 @@ javascript:(async function () {
 
 		// All checks passed -- assign the group members
 
-		await setCheckedState($optionsAllStudents[0], false);
+		// Clear all selections
+		if (!isAllStudentsChecked) await click($optionsAllStudents[0]);
+		await click($optionsAllStudents[0]);
 
 		for (const name of names) {
 			const [$optionName] = findByText($assigneeList, name);
-			await setCheckedState($optionName, true);
+			await click($optionName);
 		}
 
-		if ($assigneeListToggle) {
-			await click($assigneeListToggle);
-		}
+		if ($assigneeListToggle) await click($assigneeListToggle);
 	} catch (error) {
 		alert(`The bookmarklet encountered an error:\n\n${error.message}`);
 		throw error;
