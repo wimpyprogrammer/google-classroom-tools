@@ -3,6 +3,7 @@ javascript:(async function () {
 	const groupMembers = `George Washington;John Adams;Thomas Jefferson`;
 	/*****  END USER CUSTOMIZATIONS  *****/
 
+	const script = 1;
 	const version = 1;
 
 	/*** User inputs ***/
