@@ -22,9 +22,9 @@ javascript:(async function () {
 
 	const errorMessages = {
 		400: 'Your group is empty. Follow the instructions to customize the bookmarklet.',
-		410: 'The name "%s" was not found.',
-		411: 'The name "%s" appears more than once.',
-		500: 'Cannot find the assignees menu.',
+		410: 'The name "%s" was not found. Check your group for misspellings.',
+		411: 'The name "%s" appears more than once. Enter a more specific name that is unique to one student.',
+		500: 'Cannot find the assignees menu. Ensure you are on the screen to Create or Edit an assignment.',
 		510: 'The assignees menu failed to open.',
 		511: 'Clickable element not found.',
 		520: 'Cannot find the "All students" option in the assignees menu.',
