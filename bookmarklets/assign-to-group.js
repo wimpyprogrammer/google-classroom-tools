@@ -11,8 +11,8 @@ javascript:(async function () {
 	const errorMessages = {
 		400: 'Your group is empty. Follow the instructions to customize the bookmarklet.',
 		401: 'Your group contains a blank name. Follow the instructions to customize the bookmarklet.',
-		410: 'Student "%s" was not found.',
-		411: 'Student "%s" appears more than once.',
+		410: 'The name "%s" was not found.',
+		411: 'The name "%s" appears more than once.',
 		500: 'Cannot find the assignees menu.',
 		510: 'The assignees menu failed to open.',
 		511: 'Clickable element not found.',
@@ -56,7 +56,9 @@ javascript:(async function () {
 
 	function findByText($context, text) {
 		const descendents = $context.querySelectorAll('*');
-		return [...descendents].filter((el) => el.innerHTML === text);
+		return [...descendents].filter((el) =>
+			el.childElementCount === 0 && el.innerHTML.includes(text)
+		);
 	}
 
 	function isChecked($option) {
