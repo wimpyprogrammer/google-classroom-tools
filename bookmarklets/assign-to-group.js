@@ -1,6 +1,10 @@
 javascript:(async function () {
 	/***** BEGIN USER CUSTOMIZATIONS *****/
 	const groupMembers = `George Washington;John Adams;Thomas Jefferson`;
+
+	// isExclusionGroup = false: assign to this group
+	// isExclusionGroup = true: assign to all students not in this group
+	const isExclusionGroup = false;
 	/*****  END USER CUSTOMIZATIONS  *****/
 
 	const script = 1;
@@ -19,6 +23,12 @@ javascript:(async function () {
 			.filter((n) => n !== '');
 	}
 
+	function getIsExclusionGroup() {
+		if (typeof isExclusionGroup === 'undefined') return false;
+		if (typeof isExclusionGroup === 'string') return /true/i.test(isExclusionGroup);
+		return Boolean(isExclusionGroup);
+	}
+
 	/*** Exception handling ***/
 
 	const errorMessages = {
@@ -27,9 +37,8 @@ javascript:(async function () {
 		411: 'The name "%s" appears more than once. Enter a more specific name that is unique to one student.',
 		500: 'Cannot find the assignees menu. Ensure you are on the screen to Create or Edit an assignment.',
 		510: 'The assignees menu failed to open.',
-		511: 'Clickable element not found.',
 		520: 'Cannot find the "All students" option in the assignees menu.',
-		530: 'Cannot parse the "All students" option in the assignees menu.',
+		530: 'Cannot parse student names in the assignees menu.',
 		540: 'You must run this bookmarklet on https://classroom.google.com/.',
 	};
 
@@ -50,39 +59,33 @@ javascript:(async function () {
 	/*** DOM helpers ***/
 
 	async function click($target) {
-		// Find the ancestor element with the jsaction events - https://github.com/google/jsaction
-		let $eventListener = $target;
-		while (
-			$eventListener &&
-			!/\bmouseup\b/i.test($eventListener.getAttribute('jsaction'))
-		) {
-			$eventListener = $eventListener.parentElement;
-		}
-
-		if (!$eventListener) throw new CustomError(511);
-
-		$eventListener.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-		$eventListener.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+		$target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+		$target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
 
 		await wait(150);
 	}
 
-	function findByText($context, text) {
-		const descendents = $context.querySelectorAll('*');
-		return [...descendents].filter((el) =>
-			el.childElementCount === 0 && el.innerHTML.includes(text)
+	function getAllOptions($context) {
+		const $options = $context.querySelectorAll('[aria-checked]');
+
+		return [...$options].reduce((map, $option) =>
+			map.set(getOptionLabel($option), $option)
+		, new Map());
+	}
+
+	function getOptionLabel($option) {
+		const $descendents = $option.querySelectorAll('*');
+		const $labels = [...$descendents].filter((n) =>
+			// Find innermost text node, ignore icons
+			n.childElementCount === 0 && /\w/.test(n.innerHTML)
 		);
+		if ($labels.length !== 1) throw new CustomError(530);
+
+		return $labels[0].innerHTML;
 	}
 
 	function isChecked($option) {
-		let $cursor = $option;
-
-		while ($cursor && !$cursor.hasAttribute('aria-checked')) {
-			$cursor = $cursor.parentElement;
-		}
-
-		if (!$cursor) return undefined;
-		return /true/i.test($cursor.ariaChecked);
+		return /true/i.test($option.ariaChecked);
 	}
 
 	async function wait(milliseconds) {
@@ -119,27 +122,37 @@ javascript:(async function () {
 
 		// Assert that the assignee menu matches expectations
 
-		const $optionsAllStudents = findByText($assigneeList, 'All students');
-		if ($optionsAllStudents.length !== 1) throw new CustomError(520);
+		const allOptions = getAllOptions($assigneeList);
 
-		const isAllStudentsChecked = isChecked($optionsAllStudents[0]);
-		if (isAllStudentsChecked === undefined) throw CustomError(530);
+		const $optionAllStudents = allOptions.get('All students');
+		if (!$optionAllStudents) throw new CustomError(520);
 
-		for (const name of names) {
-			const $optionsName = findByText($assigneeList, name);
-			if ($optionsName.length < 1) throw new CustomError(410, name);
-			if ($optionsName.length > 1) throw new CustomError(411, name);
-		}
+		const allStudentNames = [...allOptions.keys()].filter((n) => n !== 'All students');
+
+		const fullNames = names.map((name) => {
+			const matches = allStudentNames.filter((test) => test.includes(name));
+			if (matches.length < 1) throw new CustomError(410, name);
+			if (matches.length > 1) throw new CustomError(411, name);
+			return matches[0];
+		});
 
 		// All checks passed -- assign the group members
 
-		// Clear all selections
-		if (!isAllStudentsChecked) await click($optionsAllStudents[0]);
-		await click($optionsAllStudents[0]);
+		const isLargeGroup = names.length / allStudentNames.length > 0.5;
+		const isAssignmentForMostStudents = isLargeGroup !== getIsExclusionGroup();
 
-		for (const name of names) {
-			const [$optionName] = findByText($assigneeList, name);
-			await click($optionName);
+		// Clear all selections
+		if (!isChecked($optionAllStudents)) await click($optionAllStudents);
+		if (!isAssignmentForMostStudents) await click($optionAllStudents);
+
+		const namesToToggle = isLargeGroup
+			// Get all names not in fullNames
+			? allStudentNames.filter((name) => !fullNames.includes(name))
+			: fullNames;
+
+		for (const name of namesToToggle) {
+			const $option = allOptions.get(name);
+			await click($option);
 		}
 
 		if ($assigneeListToggle) await click($assigneeListToggle);
