@@ -4,13 +4,24 @@ javascript:(async function () {
 	/*****  END USER CUSTOMIZATIONS  *****/
 
 	const version = 1;
+
+	/*** User inputs ***/
+
 	const nameDelimiter = ';';
+
+	function getNames() {
+		if (typeof groupMembers === 'undefined') return [];
+
+		return groupMembers
+			.split(nameDelimiter)
+			.map((n) => n.trim())
+			.filter((n) => n !== '');
+	}
 
 	/*** Exception handling ***/
 
 	const errorMessages = {
 		400: 'Your group is empty. Follow the instructions to customize the bookmarklet.',
-		401: 'Your group contains a blank name. Follow the instructions to customize the bookmarklet.',
 		410: 'The name "%s" was not found.',
 		411: 'The name "%s" appears more than once.',
 		500: 'Cannot find the assignees menu.',
@@ -81,16 +92,8 @@ javascript:(async function () {
 	try {
 		// Parse the user's input
 
-		let names;
-		if (
-			typeof groupMembers === 'undefined' ||
-			!(names = groupMembers.split(nameDelimiter).map((n) => n.trim())) ||
-			names.length === 0
-		) {
-			throw new CustomError(400);
-		}
-
-		if (names.some((n) => n === '')) throw new CustomError(401);
+		const names = getNames();
+		if (names.length === 0) throw new CustomError(400);
 
 		// Find and open the assignee menu if no menu is open yet
 
