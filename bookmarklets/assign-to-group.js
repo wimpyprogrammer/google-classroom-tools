@@ -101,8 +101,8 @@ javascript:(async function () {
 		const isAnyMenuOpen = !!document.querySelector('[role="menu"][style]');
 
 		if (!isAnyMenuOpen) {
-			// Find the menu labeled "For ___ students"
-			$assigneeListToggle = document.querySelector(('[aria-label^="for"i][aria-label$="students"i'));
+			// Find the menu labeled "For ___ student(s)"
+			$assigneeListToggle = document.querySelector('[aria-label^="for"i][aria-label*="student"i]');
 			if (!$assigneeListToggle) throw new CustomError(500);
 	
 			await click($assigneeListToggle);
