@@ -96,7 +96,10 @@ javascript:(async function () {
 
 	try {
 		const { host, protocol } = window.location;
-		if (protocol !== 'https:' || host !== 'classroom.google.com') throw new CustomError(540);
+		if (protocol === 'https:' && host === 'www.wimpyprogrammer.com' && window.editBookmarklet)
+			return window.editBookmarklet({ groupMembers, isExclusionGroup, script, version });
+		if (protocol !== 'https:' || host !== 'classroom.google.com')
+			throw new CustomError(540);
 
 		// Parse the user's input
 
