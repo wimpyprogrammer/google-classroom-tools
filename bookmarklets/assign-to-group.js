@@ -65,6 +65,16 @@ javascript:(async function () {
 		await wait(150);
 	}
 
+	function getAssigneeListToggle() {
+		// Find the menu labeled "For ___ student(s)"
+		const $allStudentToggles = document.querySelectorAll('[aria-label^="for"i][aria-label*="student"i]');
+		// Detect and ignore hidden UIs
+		const $hiddenStudentToggles = document.querySelectorAll('[aria-hidden="true"] [aria-label^="for"i][aria-label*="student"i]');
+
+		return [...$allStudentToggles]
+			.find(($toggle) => ![...$hiddenStudentToggles].includes($toggle));
+	}
+
 	function getAllOptions($context) {
 		const $options = $context.querySelectorAll('[aria-checked]');
 
@@ -113,7 +123,7 @@ javascript:(async function () {
 
 		if (!isAnyMenuOpen) {
 			// Find the menu labeled "For ___ student(s)"
-			$assigneeListToggle = document.querySelector('[aria-label^="for"i][aria-label*="student"i]');
+			$assigneeListToggle = getAssigneeListToggle();
 			if (!$assigneeListToggle) throw new CustomError(500);
 	
 			await click($assigneeListToggle);
