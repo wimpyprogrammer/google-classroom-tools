@@ -160,7 +160,18 @@ javascript:(async function () {
 
 		if ($assigneeListToggle) await click($assigneeListToggle);
 	} catch (error) {
-		alert(`The bookmarklet encountered an error:\n\n${error.message}`);
+		const helpUrlQuery = new URLSearchParams({
+			script,
+			version,
+			error: error.errorCode || error.message,
+		});
+		const helpUrl = new URL('https://www.wimpyprogrammer.com/faster-google-classroom-assignments-with-a-bookmarklet#help');
+		helpUrl.search = helpUrlQuery;
+
+		prompt(
+			`The bookmarklet encountered an error:\n\n${error.message}\n\nFor help visit:`,
+			helpUrl
+		);
 		throw error;
 	}
 })();
