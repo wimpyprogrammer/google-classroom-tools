@@ -7,8 +7,12 @@ javascript:(async function () {
 	const isExclusionGroup = false;
 	/*****  END USER CUSTOMIZATIONS  *****/
 
+	/*** Metadata to streamline editing, updating, and error reporting ***/
+
 	const script = 1;
 	const version = 1;
+	const title = '';
+	const delimiter = '';
 
 	/*** User inputs ***/
 
@@ -107,7 +111,7 @@ javascript:(async function () {
 	try {
 		const { host, protocol } = window.location;
 		if (protocol === 'https:' && host === 'www.wimpyprogrammer.com' && window.editBookmarklet)
-			return window.editBookmarklet({ groupMembers, isExclusionGroup, script, version });
+			return window.editBookmarklet({ delimiter, groupMembers, isExclusionGroup, script, title, version });
 		if (protocol !== 'https:' || host !== 'classroom.google.com')
 			throw new CustomError(540);
 
