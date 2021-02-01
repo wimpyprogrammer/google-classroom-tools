@@ -50,7 +50,7 @@ javascript:(async function () {
 			this.values = values;
 
 			const errorMessage = printf(errorMessages[errorCode], values);
-			this.message = `[${version}.${errorCode}] ${errorMessage}`;
+			this.message = '[' + version + '.' + errorCode + '] ' + errorMessage;
 		}
 	}
 
@@ -181,7 +181,7 @@ javascript:(async function () {
 		helpUrl.search = helpUrlQuery;
 
 		prompt(
-			`The bookmarklet encountered an error:\n\n${error.message}\n\nFor help visit:`,
+			'The bookmarklet encountered an error:\n\n' + error.message + '\n\nFor help visit:',
 			helpUrl
 		);
 		throw error;
