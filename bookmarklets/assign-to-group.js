@@ -1,6 +1,6 @@
 javascript:(async function () {
 	/***** BEGIN USER CUSTOMIZATIONS *****/
-	const groupMembers = `George Washington;John Adams;Thomas Jefferson`;
+	const groupMembers = ['George Washington', 'John Adams', 'Thomas Jefferson'];
 
 	// isExclusionGroup = false: assign to this group
 	// isExclusionGroup = true: assign to all students not in this group
@@ -16,13 +16,11 @@ javascript:(async function () {
 
 	/*** User inputs ***/
 
-	const nameDelimiter = ';';
-
 	function getNames() {
 		if (typeof groupMembers === 'undefined') return [];
+		if (!Array.isArray(groupMembers)) return [groupMembers];
 
 		return groupMembers
-			.split(nameDelimiter)
 			.map((n) => n.trim())
 			.filter((n) => n !== '');
 	}
