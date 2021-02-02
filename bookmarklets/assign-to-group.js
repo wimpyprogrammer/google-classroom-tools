@@ -37,6 +37,7 @@ javascript:(async function () {
 		400: 'Your group is empty. Follow the instructions to customize the bookmarklet.',
 		410: 'The name "%s" was not found. Check your group for misspellings.',
 		411: 'The name "%s" appears more than once. Enter a more specific name that is unique to one student.',
+		412: 'Your group refers to student "%s" multiple times. Reference each student only once.',
 		500: 'Cannot find the assignees menu. Ensure you are on the screen to Create or Edit an assignment.',
 		510: 'The assignees menu failed to open.',
 		520: 'Cannot find the "All students" option in the assignees menu.',
@@ -97,7 +98,7 @@ javascript:(async function () {
 	}
 
 	function isChecked($option) {
-		return /true/i.test($option.ariaChecked);
+		return /true/i.test($option.getAttribute('aria-checked'));
 	}
 
 	async function wait(milliseconds) {
@@ -145,11 +146,18 @@ javascript:(async function () {
 		const allStudentNames = [...allOptions.keys()].filter((n) => n !== 'All students');
 
 		const fullNames = names.map((name) => {
-			const matches = allStudentNames.filter((test) => test.includes(name));
+			const nameLower = name.toLowerCase();
+			const matches = allStudentNames
+				.filter((test) => test.toLowerCase().includes(nameLower));
 			if (matches.length < 1) throw new CustomError(410, name);
 			if (matches.length > 1) throw new CustomError(411, name);
 			return matches[0];
 		});
+
+		const repeatedName = fullNames.find((test) =>
+			fullNames.filter((name) => name === test).length > 1
+		);
+		if (repeatedName !== undefined) throw new CustomError(412, repeatedName);
 
 		// All checks passed -- assign the group members
 
