@@ -145,7 +145,9 @@ javascript:(async function () {
 		const allStudentNames = [...allOptions.keys()].filter((n) => n !== 'All students');
 
 		const fullNames = names.map((name) => {
-			const matches = allStudentNames.filter((test) => test.includes(name));
+			const nameLower = name.toLowerCase();
+			const matches = allStudentNames
+				.filter((test) => test.toLowerCase().includes(nameLower));
 			if (matches.length < 1) throw new CustomError(410, name);
 			if (matches.length > 1) throw new CustomError(411, name);
 			return matches[0];
