@@ -97,7 +97,7 @@ javascript:(async function () {
 	}
 
 	function isChecked($option) {
-		return /true/i.test($option.ariaChecked);
+		return /true/i.test($option.getAttribute('aria-checked'));
 	}
 
 	async function wait(milliseconds) {
